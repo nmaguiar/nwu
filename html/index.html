@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>nWu</title>
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+    </style>
+  </head>
+  <body>
+  	<div class="navbar navbar-inverse navbar-fixed-top">
+  		<div class="navbar-inner">
+  			<div class="container">
+  				<a class="brand" href="index.html">nWu</a>
+  				<div class="nav-collapse collapse">
+  					<ul class="nav">
+  						<li class="active"><a href="#">Status</a></li>
+  						<li class="active"><a href="monitor.html">Monitor</a></li>
+  					</ul>
+  				</div>
+  			</div>
+  		</div>
+  	</div>
+  	
+    <div class="container">
+			<div class="tabbable tabs-left">
+				<ul class="nav nav-tabs">
+					<li class="active">
+						<a href="#1A" data-toggle="tab">Server properties</a>
+					</li>
+					<li>
+						<a href="#1B" data-toggle="tab">URI responses number</a>
+					</li>
+					<li>
+						<a href="#1C" data-toggle="tab">URI responses</a>
+					</li>
+					<li>
+						<a href="#1D" data-toggle="tab">URI responses hits</a>
+					</li>
+				</ul>
+				<div class="tab-content">
+					<div class="tab-pane active" id="1A">
+						<p id="serverproperties"> </p>
+					</div>
+					<div class="tab-pane" id="1B">
+						<p id="uriresponsesnumber"> </p>
+					</div>
+					<div class="tab-pane" id="1C">
+						<p id="uriresponses"> </p>
+					</div>
+					<div class="tab-pane" id="1D">
+						<p id="uriresponseshits"> </p>
+					</div>
+				</div>
+			</div>
+	</div>
+    
+    <script src="js/jquery-1.8.2.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/highcharts.js"></script>
+    <script src="js/modules/exporting.js"></script>
+    <script>
+    function updateProperties() {
+      	$.getJSON("/Status?q=properties",
+    	  function(data) {
+    	  	var out = "<p align=right><button class=\"btn\" type=\"button\" onclick=\"updateProperties()\">Refresh</button></p>";
+    	  	out += "<table class=\"table table-condensed\">";
+    	  	out += "<tr><th>Property</th><th>Value</th></tr>";
+    	  	$.each(data, function(key,val) {
+				out += "<tr><td>" + key + "</td><td>" + val +"</td></tr>";
+    	  	});
+    	  	out += "</table>";
+    	  	$('#serverproperties').html(out);
+    	});  	
+    }
+    
+    function updateURIResponsesNumber() {
+     	$.getJSON("/Status?q=uriresponsesnumber",
+    	  function(data) {
+     	  	var out = "<p align=right><button class=\"btn\" type=\"button\" onclick=\"updateURIResponsesNumber()\">Refresh</button></p>";    	  	
+    	  	out += "";
+    	  	out += "Number of responses registered = " + data.Size;
+    	  	$('#uriresponsesnumber').html(out);
+    	});   	
+    }
+    
+    function updateListOfResponses() {
+    	$.getJSON("/Status?q=listofresponses",
+    	  function(data) {
+    	  	var out = "<p align=right><button class=\"btn\" type=\"button\" onclick=\"updateListOfResponses()\">Refresh</button></p>";    	  	
+    	  	out = "<table class=\"table table-condensed\">";
+    	  	out += "<tr><th>URI</th><th>Class</th></tr>";
+    	  	$.each(data, function(key,val) {
+				out += "<tr><td><a href=\"" + key + "\">" + key + "</a></td><td>" + val +"</td></tr>";
+    	  	});
+    	  	out += "</table>";
+    	  	$('#uriresponses').html(out);    	  	
+    	});    	
+    }
+    
+    function updateListOfResponsesHits() {
+    	$.getJSON("/Status?q=listofresponseshits",
+    	  function(data) {
+    	  	var out = "<p align=right><button class=\"btn\" type=\"button\" onclick=\"updateListOfResponsesHits()\">Refresh</button></p>";
+    	  	out += "<table class=\"table table-condensed\">";
+    	  	out += "<tr><th>URI</th><th>Hits</th></tr>";
+    	  	var keys = [];
+    	  	var vals = [];
+    	  	$.each(data, function(key,val) {
+				out += "<tr><td><a href=\"" + key + "\">" + key + "</a></td><td>" + val +"</td></tr>";
+				keys.push(key); 
+				vals.push(val);
+    	  	});
+    	  	out += "</table>";
+    	  	out += "<div id=\"chartcontainer\" style=\"min-height: 200px; margin: 0 auto\">teste</div>";
+    	  	$('#uriresponseshits').html(out);
+    	  	
+    	  	var chart;
+    	  	chart = new Highcharts.Chart({
+    	  		chart: {
+    	  			renderTo: 'chartcontainer',
+    	  			type: 'bar'
+    	  		},
+    	  		title: {
+    	  			text: 'Number of responses'
+    	  		},
+    	  		xAxis: {
+    	  			categories: keys,
+    	  			title: {
+    	  				text: null
+    	  			}
+    	  		},
+    	  		yAxis: {
+    	  			min: 0,
+    	  			title: {
+    	  				text: 'number of accesses',
+    	  				align: 'high'
+    	  			}
+    	  		},
+    	  		tooltip: {
+    	  			enabled: false
+    	  		},
+    	  		plotOptions: {
+    	  			bar: {
+    	  				dataLabels: {
+    	  					enabled: true
+    	  				}
+    	  			}
+    	  		},
+    	  		legend: {
+    	  			enabled: false
+    	  		},
+    	  		credits: {
+    	  			enabled: false
+    	  		},
+    	  		series: [{
+    	  			name: 'number',
+    	  			data: vals
+    	  		}]
+    	  	});
+    	});    	
+    }
+    
+    $(document).ready(function() {
+		updateProperties();
+		updateURIResponsesNumber();
+		updateListOfResponses();
+    	updateListOfResponsesHits();
+    });
+    </script>
+  </body>
+</html>

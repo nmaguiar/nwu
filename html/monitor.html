@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>nWu</title>
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+    </style>
+  </head>
+  <body>
+  	<div class="navbar navbar-inverse navbar-fixed-top">
+  		<div class="navbar-inner">
+  			<div class="container">
+  				<a class="brand" href="index.html">nWu</a>
+  				<div class="nav-collapse collapse">
+  					<ul class="nav">
+  						<li class="active"><a href="index.html">Status</a></li>
+  						<li class="active"><a href="#">Monitor</a></li>
+  					</ul>
+  				</div>
+  			</div>
+  		</div>
+  	</div>
+  	
+    <div class="container">
+			<div class="tabbable tabs-left">
+				<ul class="nav nav-tabs">
+					<li class="active">
+						<a href="#1A" data-toggle="tab">JVM</a>
+					</li>
+				</ul>
+				<div class="tab-content">
+					<div class="tab-pane active" id="1A">
+						<p id="memory"> </p>
+					</div>
+				</div>
+			</div>
+	</div>
+    
+    <script src="js/jquery-1.8.2.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/highcharts.js"></script>
+    <script src="js/modules/exporting.js"></script>
+    <script>
+    function updateMemory() {
+      	$.getJSON("/Status?q=memory",
+    	  function(data) {
+    	  	var out = "<p align=right><button class=\"btn\" type=\"button\" onclick=\"updateMemory()\">Refresh</button></p>";
+    	  	out += "<table class=\"table table-condensed\">";
+    	  	out += "<tr><th>Property</th><th>Value</th></tr>";
+    	  	var freememory = 0;	var totalmemory = 0;
+    	  	var keys = [];
+    	  	$.each(data, function(key,val) {
+				out += "<tr><td>" + key + "</td><td>" + val +"</td></tr>";
+				if (key == 'Free memory') freememory = val;
+				if (key == 'Total memory') totalmemory = val;
+    	  	});
+    	  	keys.push(['Free', freememory]);
+    	  	keys.push(['Total', totalmemory]);
+    	  	out += "</table>";
+    	  	out += "<div id=\"chartmemory\" style=\"min-height: 200px; margin: 0 auto\"></div>";
+    	  	$('#memory').html(out);
+    	  	
+    	  	var chart;
+    	  	chart = new Highcharts.Chart({
+    	  		chart: {
+    	  			renderTo: 'chartmemory',
+    	  		},
+    	  		title: {
+    	  			text: "Memory"
+    	  		},
+    	  		plotOptions: {
+    	  			pie: {
+    	  				dataLabels: {
+    	  					enabled: true,
+    	  					formatter: function() {
+    	  						return '<b>' + this.point.name + '</b>: ' + parseInt(this.percentage) + '%';
+    	  					}
+    	  				}
+    	  			}
+    	  		},
+    	  		credits: {
+    	  			enabled: false
+    	  		},
+    	  		series: [{
+    	  			type: 'pie',
+    	  			name: 'memory',
+    	  			data: keys
+    	  		}]	
+    	  	});
+    	});  	
+    }
+    
+    $(document).ready(function() {
+		updateMemory();
+    });
+    </script>
+  </body>
+</html>
