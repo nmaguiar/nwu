@@ -44,7 +44,7 @@ public class JsonResponse extends Response {
 	}
 	
 	public abstract class JsonAnswer {
-		public abstract JSONObject answer();
+		public abstract JSONObject answer(Properties params);
 	}
 	
 	public JsonResponse(HTTPd httpd, String rUri, Properties props) {
@@ -60,7 +60,7 @@ public class JsonResponse extends Response {
 		for(OperationKey key : answers4Key.keySet()) {
 			if (request.getParams().containsKey(key.operationKey)) {
 				if (request.getParams().get(key.operationKey).equals(key.key)) { 
-					out.append(answers4Key.get(key).answer());
+					out.append(answers4Key.get(key).answer(request.getParams()));
 					break searchKey;
 				}
 			}

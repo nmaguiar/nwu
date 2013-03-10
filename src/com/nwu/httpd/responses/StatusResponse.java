@@ -80,7 +80,7 @@ public class StatusResponse extends JsonResponse {
 		out.append("</body></html>");		
 	}
 	
-	protected JSONObject respond2Properties() {
+	protected JSONObject respond2Properties(Properties p) {
 		JSONObject props1 = new JSONObject();
 		try {
 			props1.put("TCP port", httpd.getMyTcpPort());
@@ -91,7 +91,7 @@ public class StatusResponse extends JsonResponse {
 		return props1;
 	}
 	
-	protected JSONObject respond2URIResponsesNumber() {
+	protected JSONObject respond2URIResponsesNumber(Properties p) {
 		JSONObject props1 = new JSONObject();
 		try {
 			props1.put("Size", HTTPd.getURIresponses().size());
@@ -102,7 +102,7 @@ public class StatusResponse extends JsonResponse {
 		return props1;		
 	}
 	
-	protected JSONObject respond2ListOfResponses() {
+	protected JSONObject respond2ListOfResponses(Properties p) {
 		JSONObject props1 = new JSONObject();
 		try {
 			for (String response : HTTPd.getURIresponses().keySet()) {
@@ -116,7 +116,7 @@ public class StatusResponse extends JsonResponse {
 		return props1;
 	}
 	
-	protected JSONObject respond2ListOfResponsesHits() {		
+	protected JSONObject respond2ListOfResponsesHits(Properties p) {		
 		JSONObject props1 = new JSONObject();
 		try {
 			for (String response : HTTPd.getURIhits().keySet()) {
@@ -130,7 +130,7 @@ public class StatusResponse extends JsonResponse {
 		return props1;
 	}
 	
-	protected JSONObject respond2Memory() {
+	protected JSONObject respond2Memory(Properties p) {
 		JSONObject props1 = new JSONObject();
 		try {
 			props1.put("Total memory", Runtime.getRuntime().totalMemory());
@@ -154,11 +154,11 @@ public class StatusResponse extends JsonResponse {
 	public StatusResponse(HTTPd httpd, String rUri, Properties props) {
 		super(httpd, rUri, props);
 		
-		add("q", "properties", new JsonAnswer() { @Override public JSONObject answer() { return respond2Properties(); } });	
-		add("q", "uriresponsesnumber", new JsonAnswer() { @Override public JSONObject answer() { return respond2URIResponsesNumber(); } });
-		add("q", "listofresponses", new JsonAnswer() { @Override public JSONObject answer() { return respond2ListOfResponses(); } });
-		add("q", "listofresponseshits",	new JsonAnswer() { @Override public JSONObject answer() { return respond2ListOfResponsesHits(); } });		
-    	add("q", "memory", new JsonAnswer() { @Override public JSONObject answer() { return respond2Memory(); } });
+		add("q", "properties", new JsonAnswer() { @Override public JSONObject answer(Properties p) { return respond2Properties(p); } });	
+		add("q", "uriresponsesnumber", new JsonAnswer() { @Override public JSONObject answer(Properties p) { return respond2URIResponsesNumber(p); } });
+		add("q", "listofresponses", new JsonAnswer() { @Override public JSONObject answer(Properties p) { return respond2ListOfResponses(p); } });
+		add("q", "listofresponseshits",	new JsonAnswer() { @Override public JSONObject answer(Properties p) { return respond2ListOfResponsesHits(p); } });		
+    	add("q", "memory", new JsonAnswer() { @Override public JSONObject answer(Properties p) { return respond2Memory(p); } });
 	}
 	
 	/**
