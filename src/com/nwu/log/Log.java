@@ -81,6 +81,19 @@ public class Log {
 	}
 
 	/**
+	 * Creates a instance to log for loggerName without configuring Log4j
+	 * Use only for overridden the default behavior
+	 * 
+	 * @param loggerName
+	 *            The log4j Logger name
+	 * @param type
+	 *            The log level to use
+	 */
+	public Log() {
+		
+	}
+	
+	/**
 	 * Log a generic message.
 	 * 
 	 * @param type Type of message (type OFF won't actually do anything)
