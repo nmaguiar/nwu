@@ -39,11 +39,20 @@ public class HTTPd {
 	protected Thread myThread;
 	protected HTTPd httpd;
 	protected Log log;
+	protected static String defaultResponse = null;
 
 	@SuppressWarnings("rawtypes")
 	protected static HashMap<String, Class> URIresponses = new HashMap<String, Class>();
 	protected static HashMap<String, Long> URIhits = new HashMap<String, Long>();
 	protected static HashMap<String, Properties> URIProps = new HashMap<String, Properties>();
+	
+	public static String getDefaultResponse() {
+		return defaultResponse;
+	}
+
+	public static void setDefaultResponse(String defaultResponse) {
+		HTTPd.defaultResponse = defaultResponse;
+	}
 	
 	/**
 	 * Creates the thread launching the httpd server on the corresponding port.

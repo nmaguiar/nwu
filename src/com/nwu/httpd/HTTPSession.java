@@ -35,6 +35,7 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
+import com.nwu.httpd.NanoHTTPD.Response;
 import com.nwu.log.Log;
 import com.nwu.log.Log.Type;
 
@@ -158,9 +159,16 @@ public class HTTPSession implements Runnable {
 			// Ok, now do the serve()
 			com.nwu.httpd.responses.Response r = serve(uri, method, header, parms);
 			
-			if ( r == null )
-				sendError( Codes.HTTP_INTERNALERROR, "SERVER INTERNAL ERROR: Serve() returned a null response." );
-			else {
+			if ( r == null ) {
+				if (httpd.getDefaultResponse() != null) {
+					sendErrorHTML(Codes.HTTP_OK, "<html>" +
+							"<meta http-equiv=\"refresh\" content=\"0; url=" + httpd.getDefaultResponse() + "\">" +
+				            "<body><a href=\"" + httpd.getDefaultResponse() + "\">" +
+							httpd.getDefaultResponse()  + "</a></body></html>");
+				} else {
+					sendError( Codes.HTTP_INTERNALERROR, "SERVER INTERNAL ERROR: Serve() returned a null response." );
+				}
+			} else {
 				if (method.equals(Request.MethodType.HEAD)) {
 					sendResponse(r.getStatus(), r.getMimeType(), r.getHeader(), null);
 				} else {
@@ -251,6 +259,12 @@ public class HTTPSession implements Runnable {
 	private void sendError( String status, String msg ) throws InterruptedException
 	{
 		sendResponse( status, Codes.MIME_PLAINTEXT, null, new ByteArrayInputStream( msg.getBytes()));
+		throw new InterruptedException();
+	}
+	
+	private void sendErrorHTML( String status, String msg ) throws InterruptedException
+	{
+		sendResponse( status, Codes.MIME_HTML, null, new ByteArrayInputStream( msg.getBytes()));
 		throw new InterruptedException();
 	}
 
