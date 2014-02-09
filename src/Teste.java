@@ -23,7 +23,7 @@ public class Teste {
 			HTTPd.registerURIResponse("/Echo", EchoResponse.class, null);
 			HTTPd.registerURIResponse("/Status", StatusResponse.class, null);
 			HTTPd.registerURIResponse("/nwu", FileResponse.class, fileProps);
-			HTTPd.registerURIResponse("/aguiar", FileResponse.class, testFileProps);
+			//HTTPd.registerURIResponse("/aguiar", FileResponse.class, testFileProps);
 			//HTTPd.registerURIResponse("/php", JavaServletResponse.class, null);
 			
 			// Start server
