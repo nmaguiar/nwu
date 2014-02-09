@@ -139,6 +139,9 @@ public class HTTPd {
 	 * @return A sub-class of com.nwu.httpd.responses.Response
 	 */
 	public static Class getURIresponse(String URI) {
+		//if (URI.equals("")) URI = "/";
+		URI.replaceFirst("/+", "/");
+		
 		if (getURIresponses().containsKey(URI)) {
 			URIhits.put(URI, URIhits.get(URI) + 1);
 			return getURIresponses().get(URI);
@@ -154,6 +157,8 @@ public class HTTPd {
 	 * @return The properties or null if not found
 	 */
 	public static Properties getURIProps(String URI) {
+		if (URI.equals("")) URI = "/";
+		
 		if(getURIproperties().containsKey(URI)) {
 			return getURIproperties().get(URI);
 		}
