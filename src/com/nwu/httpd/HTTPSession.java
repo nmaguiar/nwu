@@ -116,8 +116,7 @@ public class HTTPSession implements Runnable {
 			} else {
 				uri = decodePercent(uri);
 			}
-
-
+			
 			// If there's another token, it's protocol version,
 			// followed by HTTP headers. Ignore version but parse headers.
 			// NOTE: this now forces header names uppercase since they are
@@ -332,7 +331,11 @@ public class HTTPSession implements Runnable {
 		
 		if (uri.indexOf('/', 1) > -1) {
 			registeredUri = registeredUri.substring(0, uri.indexOf('/', 1));
-		} 
+		}
+		
+		if (!HTTPd.getURIresponses().containsKey(registeredUri)) {
+			registeredUri = HTTPd.getDefaultResponse();
+		}
 
 		if (HTTPd.getURIresponses().containsKey(registeredUri)) {
 			com.nwu.httpd.responses.Response response = null;

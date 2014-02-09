@@ -17,12 +17,13 @@ public class Teste {
 			Properties testFileProps = new Properties();
 			testFileProps.put("publichtml", "d://a");
 			
-			HTTPd.setDefaultResponse("/nwu");
+			HTTPd.setDefaultResponse("/");
 			
 			// Register responses
 			HTTPd.registerURIResponse("/Echo", EchoResponse.class, null);
 			HTTPd.registerURIResponse("/Status", StatusResponse.class, null);
-			HTTPd.registerURIResponse("/nwu", FileResponse.class, fileProps);
+			HTTPd.registerURIResponse("/abc", FileResponse.class, fileProps);
+			HTTPd.registerURIResponse("/", FileResponse.class, fileProps);
 			//HTTPd.registerURIResponse("/aguiar", FileResponse.class, testFileProps);
 			//HTTPd.registerURIResponse("/php", JavaServletResponse.class, null);
 			
