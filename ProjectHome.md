@@ -1,0 +1,1 @@
+A simple and light Java web server with the objective of being easily embedded in any Java application to provide a simple web user interface.
