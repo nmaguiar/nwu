@@ -18,12 +18,20 @@
  */
 package com.nwu.httpd;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
+import com.nwu.httpd.NanoHTTPD.IHTTPSession;
+import com.nwu.httpd.NanoHTTPD.Method;
+import com.nwu.httpd.NanoHTTPD.Response;
+import com.nwu.httpd.NanoHTTPD.ResponseException;
 import com.nwu.log.Log;
 import com.nwu.log.Log.Type;
 
@@ -33,9 +41,9 @@ import com.nwu.log.Log.Type;
  * @author Nuno Aguiar <nuno@aguiar.name>
  * 
  */
-public class HTTPd {
+public class HTTPd extends NanoHTTPD {
 	protected int myTcpPort;
-	protected final ServerSocket myServerSocket;
+	//protected final ServerSocket myServerSocket;
 	protected Thread myThread;
 	protected HTTPd httpd;
 	protected Log log;
@@ -44,7 +52,8 @@ public class HTTPd {
 	@SuppressWarnings("rawtypes")
 	protected static HashMap<String, Class> URIresponses = new HashMap<String, Class>();
 	protected static HashMap<String, Long> URIhits = new HashMap<String, Long>();
-	protected static HashMap<String, Properties> URIProps = new HashMap<String, Properties>();
+	protected static HashMap<String, Map<String, String>> URIProps = new HashMap<String, Map<String, String>>();
+	protected static ArrayList<String> gzipaccept = new ArrayList<String>();
 	
 	public static String getDefaultResponse() {
 		return defaultResponse;
@@ -53,7 +62,7 @@ public class HTTPd {
 	public static void setDefaultResponse(String defaultResponse) {
 		HTTPd.defaultResponse = defaultResponse;
 	}
-	
+		
 	/**
 	 * Creates the thread launching the httpd server on the corresponding port.
 	 * 
@@ -64,25 +73,56 @@ public class HTTPd {
 	 *             corresponding port.
 	 */
 	public HTTPd(Log aLog, int port) throws IOException {
+		super(port);
+		super.start();
 		this.log = aLog;
 		this.httpd = this;
 		myTcpPort = port;
-		myServerSocket = new ServerSocket(myTcpPort);
 		log.log(Type.DEBUG, "ServerSocket created for TCP port: " + myTcpPort);
-		
-		myThread = new Thread(new Runnable() {
-			public void run() {
-				try {
-					while (true)
-						new HTTPSession(httpd, myServerSocket.accept());
-				} catch (IOException ioe) {
-				}
-			}
-		});
-		myThread.setDaemon(true);
-		myThread.start();
 	}
 
+	/**
+	 * 
+	 * @param aLog
+	 * @param hostname
+	 * @param port
+	 * @throws IOException
+	 */
+	public HTTPd(Log aLog, String hostname, int port) throws IOException {
+		super(hostname, port);
+		super.start();
+		this.log = aLog;
+		this.httpd = this;
+		myTcpPort = port;
+		log.log(Type.DEBUG, "ServerSocket created for TCP hostname: " + hostname + "; port: " + myTcpPort);
+	}
+	
+	@Override
+	public Response serve(IHTTPSession session) {
+        Map<String, String> files = new HashMap<String, String>();
+        Method method = session.getMethod();
+        if (Method.PUT.equals(method) || Method.POST.equals(method)) {
+            try {
+                session.parseBody(files);
+            } catch (IOException ioe) {
+                return new Response(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, new ByteArrayInputStream(("SERVER INTERNAL ERROR: IOException: " + ioe.getMessage()).getBytes(StandardCharsets.UTF_8)), -1);
+            } catch (ResponseException re) {
+                return new Response(re.getStatus(), MIME_PLAINTEXT, new ByteArrayInputStream(re.getMessage().getBytes(StandardCharsets.UTF_8)), re.getMessage().length());
+            }
+        }
+        
+        Map<String, String> parms = session.getParms();
+        parms.put(super.QUERY_STRING_PARAMETER, session.getQueryParameterString());
+        Response res = com.nwu.httpd.HTTPSession.serve(this, log, session.getUri(), method, session.getHeaders(), parms, files);
+        try {
+        	session.getInputStream().skip(session.getInputStream().available());
+		} catch (IOException e) {
+			log.log(Type.ERROR, "Error emptying buffer: " + e.getMessage());
+		}
+        return res;
+        //return serve(session.getUri(), method, session.getHeaders(), parms, files);
+	}
+	
 	/**
 	 * Registers a response class to answer requests on a given URI for this
 	 * server thread.
@@ -96,8 +136,7 @@ public class HTTPd {
 	 *            The response class (com.nwu.httpd.responses.Response) to
 	 *            register.
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void registerURIResponse(String URI, Class aClass, Properties props) {
+	public static void registerURIResponse(String URI, Class<?> aClass, Map<String, String> props) {
 		if (aClass != null
 				&& aClass.asSubclass(com.nwu.httpd.responses.Response.class) != null) {
 			URIresponses.put(URI, aClass);
@@ -128,7 +167,7 @@ public class HTTPd {
 	 * 
 	 * @see java.util.Properties
 	 */
-	public static HashMap<String, Properties> getURIproperties() {
+	public static HashMap<String, Map<String, String>> getURIproperties() {
 		return URIProps;
 	}
 	
@@ -138,8 +177,7 @@ public class HTTPd {
 	 * @param URI The URI to lookup the corresponding registered class
 	 * @return A sub-class of com.nwu.httpd.responses.Response
 	 */
-	public static Class getURIresponse(String URI) {
-		//if (URI.equals("")) URI = "/";
+	public static Class<?> getURIresponse(String URI) {
 		URI.replaceFirst("/+", "/");
 		
 		if (getURIresponses().containsKey(URI)) {
@@ -156,7 +194,7 @@ public class HTTPd {
 	 * @param URI The URI to lookup the corresponding properties
 	 * @return The properties or null if not found
 	 */
-	public static Properties getURIProps(String URI) {
+	public static Map<String, String> getURIProps(String URI) {
 		if (URI.equals("")) URI = "/";
 		
 		if(getURIproperties().containsKey(URI)) {
@@ -176,18 +214,6 @@ public class HTTPd {
 	}
 
 	/**
-	 * Stops the server.
-	 */
-	public void stop() {
-		try {
-			myServerSocket.close();
-			myThread.join();
-		} catch (IOException ioe) {
-		} catch (InterruptedException e) {
-		}
-	}
-
-	/**
 	 * Provides the current assigned TCP port.
 	 * 
 	 * @return the port number.
@@ -204,5 +230,15 @@ public class HTTPd {
 	public Log getLog() {
 		return log;
 	}
+	
+	public void addToGzipAccept(String mimetype) {
+		gzipaccept.add(mimetype.toLowerCase());
+	}
+	
+	@Override
+    protected boolean useGzipWhenAccepted(Response r) {
+        return r.getMimeType() != null && (r.getMimeType().toLowerCase().contains("text/") ||
+        		 (gzipaccept.contains(r.getMimeType().toLowerCase())));
+    }
 
 }

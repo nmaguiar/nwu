@@ -18,45 +18,53 @@
  */
 package com.nwu.httpd;
 
+import java.util.Map;
 import java.util.Properties;
+
+import com.nwu.httpd.NanoHTTPD.Method;
 
 public class Request {
 	String uri;
 	MethodType method;
-	Properties header;
-	Properties params;
+	Map<String, String> header;
+	Map<String, String> params;
+	Map<String, String> files;
 	
 	public enum MethodType {
 		GET,
 		POST,
 		UPDATE,
 		DELETE,
-		HEAD
+		HEAD,
+		OPTIONS
 	}
 	
-	public MethodType strMethod2Type(String method) {
+	public MethodType strMethod2Type(Method method) {
 		MethodType mtype = null;
 		
-		if (method.equalsIgnoreCase(MethodType.GET.toString())) {
+		if (method.toString().equalsIgnoreCase(MethodType.GET.toString())) {
 			return MethodType.GET;
-		} else if (method.equalsIgnoreCase(MethodType.POST.toString())) {
+		} else if (method.toString().equalsIgnoreCase(MethodType.POST.toString())) {
 			return MethodType.POST;
-		} else if (method.equalsIgnoreCase(MethodType.UPDATE.toString())) {
+		} else if (method.toString().equalsIgnoreCase(MethodType.UPDATE.toString())) {
 			return MethodType.UPDATE;
-		} else if (method.equalsIgnoreCase(MethodType.DELETE.toString())) {
+		} else if (method.toString().equalsIgnoreCase(MethodType.DELETE.toString())) {
 			return MethodType.DELETE;
-		} else if (method.equalsIgnoreCase(MethodType.HEAD.toString())) {
+		} else if (method.toString().equalsIgnoreCase(MethodType.HEAD.toString())) {
 			return MethodType.HEAD;
+		} else if (method.toString().equalsIgnoreCase(MethodType.OPTIONS.toString())) {
+			return MethodType.OPTIONS;
 		}
 		
 		return mtype;
 	}
 	
-	public Request(String uri, String method, Properties header, Properties params) {
+	public Request(String uri, Method method, Map<String, String> headers, Map<String, String> parms, Map<String, String> files) {
 		this.uri = uri;
 		this.method = strMethod2Type(method);
-		this.header = header;
-		this.params = params;
+		this.header = headers;
+		this.params = parms;
+		this.files = files;
 	}
 	
 	public String getUri() {
@@ -75,20 +83,28 @@ public class Request {
 		this.method = method;
 	}
 
-	public Properties getHeader() {
+	public Map<String, String> getHeader() {
 		return header;
 	}
 
-	public void setHeader(Properties header) {
+	public void setHeader(Map<String, String> header) {
 		this.header = header;
 	}
 
-	public Properties getParams() {
+	public Map<String, String> getParams() {
 		return params;
 	}
 
-	public void setParams(Properties params) {
+	public void setParams(Map<String, String> params) {
 		this.params = params;
+	}
+	
+	public void setFiles(Map<String, String> files) {
+		this.files = files;
+	}
+	
+	public Map<String, String> getFiles() {
+		return files;
 	}
 
 }

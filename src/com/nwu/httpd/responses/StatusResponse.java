@@ -20,6 +20,7 @@ package com.nwu.httpd.responses;
 
 import java.io.ByteArrayInputStream;
 import java.lang.management.ManagementFactory;
+import java.util.Map;
 import java.util.Properties;
 
 import org.json.JSONException;
@@ -80,7 +81,7 @@ public class StatusResponse extends JsonResponse {
 		out.append("</body></html>");		
 	}
 	
-	protected JSONObject respond2Properties(Properties p) {
+	protected JSONObject respond2Properties(Map<String, String> p) {
 		JSONObject props1 = new JSONObject();
 		try {
 			props1.put("TCP port", httpd.getMyTcpPort());
@@ -91,7 +92,7 @@ public class StatusResponse extends JsonResponse {
 		return props1;
 	}
 	
-	protected JSONObject respond2URIResponsesNumber(Properties p) {
+	protected JSONObject respond2URIResponsesNumber(Map<String, String> p) {
 		JSONObject props1 = new JSONObject();
 		try {
 			props1.put("Size", HTTPd.getURIresponses().size());
@@ -102,7 +103,7 @@ public class StatusResponse extends JsonResponse {
 		return props1;		
 	}
 	
-	protected JSONObject respond2ListOfResponses(Properties p) {
+	protected JSONObject respond2ListOfResponses(Map<String, String> p) {
 		JSONObject props1 = new JSONObject();
 		try {
 			for (String response : HTTPd.getURIresponses().keySet()) {
@@ -116,7 +117,7 @@ public class StatusResponse extends JsonResponse {
 		return props1;
 	}
 	
-	protected JSONObject respond2ListOfResponsesHits(Properties p) {		
+	protected JSONObject respond2ListOfResponsesHits(Map<String, String> p) {		
 		JSONObject props1 = new JSONObject();
 		try {
 			for (String response : HTTPd.getURIhits().keySet()) {
@@ -130,7 +131,7 @@ public class StatusResponse extends JsonResponse {
 		return props1;
 	}
 	
-	protected JSONObject respond2Memory(Properties p) {
+	protected JSONObject respond2Memory(Map<String, String> p) {
 		JSONObject props1 = new JSONObject();
 		try {
 			props1.put("Total memory", Runtime.getRuntime().totalMemory());
@@ -151,14 +152,14 @@ public class StatusResponse extends JsonResponse {
 	 * @param httpd The httpd server context.
 	 * @param request The request.
 	 */
-	public StatusResponse(HTTPd httpd, String rUri, Properties props) {
+	public StatusResponse(HTTPd httpd, String rUri, Map<String, String> props) {
 		super(httpd, rUri, props);
 		
-		add("q", "properties", new JsonAnswer() { @Override public JSONObject answer(Properties p) { return respond2Properties(p); } });	
-		add("q", "uriresponsesnumber", new JsonAnswer() { @Override public JSONObject answer(Properties p) { return respond2URIResponsesNumber(p); } });
-		add("q", "listofresponses", new JsonAnswer() { @Override public JSONObject answer(Properties p) { return respond2ListOfResponses(p); } });
-		add("q", "listofresponseshits",	new JsonAnswer() { @Override public JSONObject answer(Properties p) { return respond2ListOfResponsesHits(p); } });		
-    	add("q", "memory", new JsonAnswer() { @Override public JSONObject answer(Properties p) { return respond2Memory(p); } });
+		add("q", "properties", new JsonAnswer() { @Override public JSONObject answer(Map<String, String> p) { return respond2Properties(p); } });	
+		add("q", "uriresponsesnumber", new JsonAnswer() { @Override public JSONObject answer(Map<String, String> p) { return respond2URIResponsesNumber(p); } });
+		add("q", "listofresponses", new JsonAnswer() { @Override public JSONObject answer(Map<String, String> p) { return respond2ListOfResponses(p); } });
+		add("q", "listofresponseshits",	new JsonAnswer() { @Override public JSONObject answer(Map<String, String> p) { return respond2ListOfResponsesHits(p); } });		
+    	add("q", "memory", new JsonAnswer() { @Override public JSONObject answer(Map<String, String> p) { return respond2Memory(p); } });
 	}
 	
 	/**

@@ -20,10 +20,11 @@ package com.nwu.httpd.responses;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.Properties;
-
+import java.util.HashMap;
+import java.util.Map;
 import com.nwu.httpd.Codes;
 import com.nwu.httpd.HTTPd;
+import com.nwu.httpd.NanoHTTPD.Response.IStatus;
 import com.nwu.httpd.Request;
 import com.nwu.log.Log;
 
@@ -37,8 +38,9 @@ public abstract class Response {
 	protected HTTPd httpd;
 	protected Log log;
 	protected String rURI;
-	protected Properties props;
-
+	protected Map<String, String> props;
+	protected long size = -1;
+	
 	/**
 	 * Create a response object based on a server context and request
 	 * 
@@ -59,9 +61,9 @@ public abstract class Response {
 	 * 
 	 * @param uri The registered uri
 	 */
-//	public static void register(String uri, Properties props) {
-//		HTTPd.registerURIResponse(uri, Response.class, props);
-//	}
+	public static void register(String uri, Map<String, String> props) {
+		HTTPd.registerURIResponse(uri, Response.class, props);
+	}
 	
 	/**
 	 * Default constructor: response = HTTP_OK, data = mime = 'null'
@@ -75,7 +77,7 @@ public abstract class Response {
 	/**
 	 * Basic constructor.
 	 */
-	public Response(HTTPd httpd, String status, String mimeType, InputStream data) {
+	public Response(HTTPd httpd, IStatus status, String mimeType, InputStream data) {
 		this.httpd = httpd;
 		this.status = status;
 		this.mimeType = mimeType;
@@ -87,35 +89,46 @@ public abstract class Response {
 	 * Convenience method that makes an InputStream out of
 	 * given text.
 	 */
-//	public Response(HTTPd httpd, String status, String mimeType, String txt) {
-//		this.httpd = httpd;
-//		this.status = status;
-//		this.mimeType = mimeType;
-//		this.data = new ByteArrayInputStream( txt.getBytes());
-//		this.log = httpd.getLog();
-//	}
-
-	public Response(HTTPd httpd, String rUri, Properties props) {
+	public Response(HTTPd httpd, IStatus status, String mimeType, String txt) {
 		this.httpd = httpd;
 		this.status = status;
 		this.mimeType = mimeType;
+		this.data = new ByteArrayInputStream( txt.getBytes());
+		this.log = httpd.getLog();
+		this.size = txt.length();
+	}
+
+	public Response(HTTPd httpd, String rUri, Map<String, String> props) {
+		this.httpd = httpd;
 		this.props = props;
 		this.rURI = rUri;
 		this.log = httpd.getLog();
 	}
 
 	/**
+	 * Build a NanoHTTPD response
+	 * 
+	 * @return
+	 */
+	public com.nwu.httpd.NanoHTTPD.Response getResponse() {
+		com.nwu.httpd.NanoHTTPD.Response response = new com.nwu.httpd.NanoHTTPD.Response(status, mimeType, data, size);
+		for(String key : header.keySet()) {
+			response.addHeader(key, header.get(key));
+		}
+		return response;
+	}
+	
+	/**
 	 * Adds given line to the header.
 	 */
-	public void addHeader( String name, String value )
-	{
+	public void addHeader( String name, String value ) {
 		header.put( name, value );
 	}
 
 	/**
 	 * HTTP status code after processing, e.g. "200 OK", HTTP_OK
 	 */
-	protected String status = null;
+	protected IStatus status = null;
 
 	/**
 	 * MIME type of content, e.g. "text/html"
@@ -131,24 +144,21 @@ public abstract class Response {
 	 * Headers for the HTTP response. Use addHeader()
 	 * to add lines.
 	 */
-	protected Properties header = new Properties();
+	protected Map<String, String> header = new HashMap<String, String>();
 
-	public String getStatus() {
+	public IStatus getStatus() {
 		return status;
 	}
 
 	public String getMimeType() {
-		// TODO Auto-generated method stub
 		return mimeType;
 	}
 
-	public Properties getHeader() {
-		// TODO Auto-generated method stub
+	public Map<String, String> getHeader() {
 		return header;
 	}
 
 	public InputStream getData() {
-		// TODO Auto-generated method stub
 		return data;
 	}
 	

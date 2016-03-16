@@ -20,6 +20,7 @@ package com.nwu.httpd.responses;
 
 import java.io.ByteArrayInputStream;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.json.JSONObject;
@@ -44,10 +45,10 @@ public class JsonResponse extends Response {
 	}
 	
 	public abstract class JsonAnswer {
-		public abstract JSONObject answer(Properties params);
+		public abstract JSONObject answer(Map<String, String> params);
 	}
 	
-	public JsonResponse(HTTPd httpd, String rUri, Properties props) {
+	public JsonResponse(HTTPd httpd, String rUri, Map<String, String> props) {
 		super(httpd, rUri, props);
 	}
 

@@ -21,6 +21,8 @@ package com.nwu.httpd;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
+import com.nwu.httpd.NanoHTTPD.Response.IStatus;
+
 /**
  * Static html constant values.
  * 
@@ -36,14 +38,13 @@ public class Codes {
 	/**
 	 * Some HTTP response status codes
 	 */
-	public static final String
-	HTTP_OK = "200 OK",
-	HTTP_REDIRECT = "301 Moved Permanently",
-	HTTP_FORBIDDEN = "403 Forbidden",
-	HTTP_NOTFOUND = "404 Not Found",
-	HTTP_BADREQUEST = "400 Bad Request",
-	HTTP_INTERNALERROR = "500 Internal Server Error",
-	HTTP_NOTIMPLEMENTED = "501 Not Implemented";
+	public static final IStatus
+	HTTP_OK = com.nwu.httpd.NanoHTTPD.Response.Status.OK,
+	HTTP_REDIRECT = com.nwu.httpd.NanoHTTPD.Response.Status.REDIRECT,
+	HTTP_FORBIDDEN = com.nwu.httpd.NanoHTTPD.Response.Status.FORBIDDEN,
+	HTTP_NOTFOUND = com.nwu.httpd.NanoHTTPD.Response.Status.NOT_FOUND,
+	HTTP_BADREQUEST = com.nwu.httpd.NanoHTTPD.Response.Status.BAD_REQUEST,
+	HTTP_INTERNALERROR = com.nwu.httpd.NanoHTTPD.Response.Status.INTERNAL_ERROR;
 
 	/**
 	 * Common mime types for dynamic content

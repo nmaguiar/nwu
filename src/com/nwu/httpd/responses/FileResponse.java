@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
@@ -41,7 +42,7 @@ public class FileResponse extends Response {
 		this.fileLocation = fileLocation;
 	}
 
-	public FileResponse(HTTPd httpd, String rUri, Properties props) {
+	public FileResponse(HTTPd httpd, String rUri, Map<String, String> props) {
 		super(httpd, rUri, props);
 	}
 	
@@ -76,7 +77,7 @@ public class FileResponse extends Response {
 	 * ignores all headers and HTTP parameters.
 	 */
 	public com.nwu.httpd.responses.Response serveFile(String uri,
-			Properties header, File homeDir, boolean allowDirectoryListing) {
+			Map<String, String> header, File homeDir, boolean allowDirectoryListing) {
 		
 		uri = uri.replaceFirst(this.rURI, "");
 		
@@ -110,14 +111,17 @@ public class FileResponse extends Response {
 			// directory, send a redirect.
 			if (!uri.endsWith("/")) {
 				uri += "/";
-				com.nwu.httpd.responses.Response r = new com.nwu.httpd.responses.SimpleResponse(
-						httpd, Codes.HTTP_REDIRECT, Codes.MIME_HTML,
-						"<html>"+HTML_STYLE+"<body>Redirected: <a href=\"" + this.rURI + uri + "\">"
-								+ this.rURI + uri + "</a></body></html>");
-				r.addHeader("Location", this.rURI + uri);
-				return r;
+//				com.nwu.httpd.responses.Response r = new com.nwu.httpd.responses.SimpleResponse(
+//						httpd, Codes.HTTP_REDIRECT, Codes.MIME_HTML,
+//						"<html><head><meta http-equiv=\"refresh\" content=\"0; url=" + this.rURI + uri + "\"></head>"+HTML_STYLE+"<body>Redirected: <a href=\"" + this.rURI + uri + "\">"
+//								+ this.rURI + uri + "</a></body></html>");
+//				r.addHeader("Location", this.rURI + uri);
+//				return r;
 			}
 
+			this.rURI = this.rURI.replaceAll("/+", "/");
+			uri = uri.replaceAll("/+",  "/");
+			
 			// First try index.html and index.htm
 			if (new File(f, "index.html").exists())
 				f = new File(homeDir, uri + "/index.html");
@@ -189,7 +193,7 @@ public class FileResponse extends Response {
 
 			// Support (simple) skipping:
 			long startFrom = 0;
-			String range = header.getProperty("range");
+			String range = header.get("range");
 			if (range != null) {
 				if (range.startsWith("bytes=")) {
 					range = range.substring("bytes=".length());
@@ -247,7 +251,7 @@ public class FileResponse extends Response {
 		log.log(Type.DEBUG, "URI = " + uri);
 		log.log(Type.DEBUG, "Method = " + request.getMethod());
 		
-		if (props.containsKey("publichtml")) fileLocation = props.getProperty("publichtml");
+		if (props.containsKey("publichtml")) fileLocation = props.get("publichtml");
 		log.log(Type.DEBUG, "publichtml = " + fileLocation);
 
 		Response r = serveFile(uri, request.getHeader(), new File(fileLocation), true);
