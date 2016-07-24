@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import com.nwu.httpd.NanoHTTPD.IHTTPSession;
 import com.nwu.httpd.NanoHTTPD.Method;
@@ -74,6 +75,7 @@ public class HTTPd extends NanoHTTPD {
 	 */
 	public HTTPd(Log aLog, int port) throws IOException {
 		super(port);
+		super.LOG = aLog;
 		super.start();
 		this.log = aLog;
 		this.httpd = this;
@@ -90,6 +92,7 @@ public class HTTPd extends NanoHTTPD {
 	 */
 	public HTTPd(Log aLog, String hostname, int port) throws IOException {
 		super(hostname, port);
+		super.LOG = aLog;
 		super.start();
 		this.log = aLog;
 		this.httpd = this;
