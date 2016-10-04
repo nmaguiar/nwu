@@ -1,6 +1,7 @@
 package com.nwu.httpd;
 
 /*
+ * 
  * #%L
  * NanoHttpd-Core
  * %%
@@ -172,7 +173,7 @@ public abstract class NanoHTTPD {
 
         private final Socket acceptSocket;
 
-        private ClientHandler(InputStream inputStream, Socket acceptSocket) {
+        public ClientHandler(InputStream inputStream, Socket acceptSocket) {
             this.inputStream = inputStream;
             this.acceptSocket = acceptSocket;
         }
@@ -401,7 +402,7 @@ public abstract class NanoHTTPD {
         public void delete() throws Exception {
             safeClose(this.fstream);
             if (!this.file.delete()) {
-                throw new Exception("could not delete temporary file");
+                throw new Exception("could not delete temporary file: " + this.file.getAbsolutePath());
             }
         }
 
@@ -625,7 +626,7 @@ public abstract class NanoHTTPD {
 
         private Method method;
 
-        private Map<String, String> parms;
+        private Map<String, List<String>> parms;
 
         private Map<String, String> headers;
 
@@ -657,7 +658,7 @@ public abstract class NanoHTTPD {
         /**
          * Decodes the sent headers and loads the data into Key/value pairs
          */
-        private void decodeHeader(BufferedReader in, Map<String, String> pre, Map<String, String> parms, Map<String, String> headers) throws ResponseException {
+        private void decodeHeader(BufferedReader in, Map<String, String> pre, Map<String, List<String>> parms, Map<String, String> headers) throws ResponseException {
             try {
                 // Read the request line
                 String inLine = in.readLine();
@@ -715,7 +716,7 @@ public abstract class NanoHTTPD {
         /**
          * Decodes the Multipart Body data and put it into Key/Value pairs.
          */
-        private void decodeMultipartFormData(ContentType contentType, ByteBuffer fbuf, Map<String, String> parms, Map<String, String> files) throws ResponseException {
+        private void decodeMultipartFormData(ContentType contentType, ByteBuffer fbuf, Map<String, List<String>> parms, Map<String, String> files) throws ResponseException {
             int pcount = 0;
             try {
                 int[] boundaryIdxs = getBoundaryPositions(fbuf, contentType.getBoundary().getBytes());
@@ -784,11 +785,19 @@ public abstract class NanoHTTPD {
                     int partDataEnd = boundaryIdxs[boundaryIdx + 1] - 4;
 
                     fbuf.position(partDataStart);
+
+                    List<String> values = parms.get(partName);
+                    if (values == null) {
+                        values = new ArrayList<String>();
+                        parms.put(partName, values);
+                    }
+
                     if (partContentType == null) {
                         // Read the part into a string
                         byte[] data_bytes = new byte[partDataEnd - partDataStart];
                         fbuf.get(data_bytes);
-                        parms.put(partName, new String(data_bytes, contentType.getEncoding()));
+
+                        values.add(new String(data_bytes, contentType.getEncoding()));
                     } else {
                         // Read it into a file
                         String path = saveTmpFile(fbuf, partDataStart, partDataEnd - partDataStart, fileName);
@@ -801,7 +810,7 @@ public abstract class NanoHTTPD {
                             }
                             files.put(partName + count, path);
                         }
-                        parms.put(partName, fileName);
+                        values.add(fileName);
                     }
                 }
             } catch (ResponseException re) {
@@ -821,10 +830,9 @@ public abstract class NanoHTTPD {
         /**
          * Decodes parameters in percent-encoded URI-format ( e.g.
          * "name=Jack%20Daniels&pass=Single%20Malt" ) and adds them to given
-         * Map. NOTE: this doesn't support multiple identical keys due to the
-         * simplicity of Map.
+         * Map.
          */
-        private void decodeParms(String parms, Map<String, String> p) {
+        private void decodeParms(String parms, Map<String, List<String>> p) {
             if (parms == null) {
                 this.queryParameterString = "";
                 return;
@@ -835,11 +843,24 @@ public abstract class NanoHTTPD {
             while (st.hasMoreTokens()) {
                 String e = st.nextToken();
                 int sep = e.indexOf('=');
+                String key = null;
+                String value = null;
+
                 if (sep >= 0) {
-                    p.put(decodePercent(e.substring(0, sep)).trim(), decodePercent(e.substring(sep + 1)));
+                    key = decodePercent(e.substring(0, sep)).trim();
+                    value = decodePercent(e.substring(sep + 1));
                 } else {
-                    p.put(decodePercent(e).trim(), "");
+                    key = decodePercent(e).trim();
+                    value = "";
                 }
+
+                List<String> values = p.get(key);
+                if (values == null) {
+                    values = new ArrayList<String>();
+                    p.put(key, values);
+                }
+
+                values.add(value);
             }
         }
 
@@ -887,7 +908,7 @@ public abstract class NanoHTTPD {
                     this.inputStream.skip(this.splitbyte);
                 }
 
-                this.parms = new HashMap<String, String>();
+                this.parms = new HashMap<String, List<String>>();
                 if (null == this.headers) {
                     this.headers = new HashMap<String, String>();
                 } else {
@@ -1054,8 +1075,22 @@ public abstract class NanoHTTPD {
             return this.method;
         }
 
+        /**
+         * @deprecated use {@link #getParameters()} instead.
+         */
         @Override
+        @Deprecated
         public final Map<String, String> getParms() {
+            Map<String, String> result = new HashMap<String, String>();
+            for (String key : this.parms.keySet()) {
+                result.put(key, this.parms.get(key).get(0));
+            }
+
+            return result;
+        }
+
+        @Override
+        public final Map<String, List<String>> getParameters() {
             return this.parms;
         }
 
@@ -1211,7 +1246,17 @@ public abstract class NanoHTTPD {
 
         Method getMethod();
 
+        /**
+         * This method will only return the first value for a given parameter.
+         * You will want to use getParameters if you expect multiple values for
+         * a given key.
+         * 
+         * @deprecated use {@link #getParameters()} instead.
+         */
+        @Deprecated
         Map<String, String> getParms();
+
+        Map<String, List<String>> getParameters();
 
         String getQueryParameterString();
 
@@ -1295,15 +1340,27 @@ public abstract class NanoHTTPD {
          */
         public enum Status implements IStatus {
             SWITCH_PROTOCOL(101, "Switching Protocols"),
+
             OK(200, "OK"),
             CREATED(201, "Created"),
             ACCEPTED(202, "Accepted"),
             NO_CONTENT(204, "No Content"),
             PARTIAL_CONTENT(206, "Partial Content"),
             MULTI_STATUS(207, "Multi-Status"),
+
             REDIRECT(301, "Moved Permanently"),
+            /**
+             * Many user agents mishandle 302 in ways that violate the RFC1945
+             * spec (i.e., redirect a POST to a GET). 303 and 307 were added in
+             * RFC2616 to address this. You should prefer 303 and 307 unless the
+             * calling user agent does not support 303 and 307 functionality
+             */
+            @Deprecated
+            FOUND(302, "Found"),
             REDIRECT_SEE_OTHER(303, "See Other"),
             NOT_MODIFIED(304, "Not Modified"),
+            TEMPORARY_REDIRECT(307, "Temporary Redirect"),
+
             BAD_REQUEST(400, "Bad Request"),
             UNAUTHORIZED(401, "Unauthorized"),
             FORBIDDEN(403, "Forbidden"),
@@ -1312,9 +1369,18 @@ public abstract class NanoHTTPD {
             NOT_ACCEPTABLE(406, "Not Acceptable"),
             REQUEST_TIMEOUT(408, "Request Timeout"),
             CONFLICT(409, "Conflict"),
+            GONE(410, "Gone"),
+            LENGTH_REQUIRED(411, "Length Required"),
+            PRECONDITION_FAILED(412, "Precondition Failed"),
+            PAYLOAD_TOO_LARGE(413, "Payload Too Large"),
+            UNSUPPORTED_MEDIA_TYPE(415, "Unsupported Media Type"),
             RANGE_NOT_SATISFIABLE(416, "Requested Range Not Satisfiable"),
+            EXPECTATION_FAILED(417, "Expectation Failed"),
+            TOO_MANY_REQUESTS(429, "Too Many Requests"),
+
             INTERNAL_ERROR(500, "Internal Server Error"),
             NOT_IMPLEMENTED(501, "Not Implemented"),
+            SERVICE_UNAVAILABLE(503, "Service Unavailable"),
             UNSUPPORTED_HTTP_VERSION(505, "HTTP Version Not Supported");
 
             private final int requestStatus;
@@ -1324,6 +1390,15 @@ public abstract class NanoHTTPD {
             Status(int requestStatus, String description) {
                 this.requestStatus = requestStatus;
                 this.description = description;
+            }
+
+            public static Status lookup(int requestStatus) {
+                for (Status status : Status.values()) {
+                    if (status.getRequestStatus() == requestStatus) {
+                        return status;
+                    }
+                }
+                return null;
             }
 
             @Override
@@ -1678,7 +1753,7 @@ public abstract class NanoHTTPD {
 
         private boolean hasBinded = false;
 
-        private ServerRunnable(int timeout) {
+        public ServerRunnable(int timeout) {
             this.timeout = timeout;
         }
 
@@ -1781,9 +1856,9 @@ public abstract class NanoHTTPD {
     /**
      * logger to log to.
      */
-    //protected static Log LOG = Logger.getLogger(NanoHTTPD.class.getName());
+    //private static final Logger LOG = Logger.getLogger(NanoHTTPD.class.getName());
     protected static Log LOG;
-
+    
     /**
      * Hashtable mapping (String)FILENAME_EXTENSION -> (String)MIME_TYPE
      */
@@ -1814,7 +1889,7 @@ public abstract class NanoHTTPD {
                 InputStream stream = null;
                 try {
                     stream = url.openStream();
-                    properties.load(url.openStream());
+                    properties.load(stream);
                 } catch (IOException e) {
                     LOG.log(Level.SEVERE, "could not load mimetypes from " + url, e);
                 } finally {
@@ -2066,7 +2141,7 @@ public abstract class NanoHTTPD {
      */
     @SuppressWarnings("static-method")
     protected boolean useGzipWhenAccepted(Response r) {
-        return r.getMimeType() != null && r.getMimeType().toLowerCase().contains("text/");
+        return r.getMimeType() != null && (r.getMimeType().toLowerCase().contains("text/") || r.getMimeType().toLowerCase().contains("/json"));
     }
 
     public final int getListeningPort() {

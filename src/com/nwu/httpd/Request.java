@@ -32,6 +32,7 @@ public class Request {
 	
 	public enum MethodType {
 		GET,
+		PUT,
 		POST,
 		UPDATE,
 		DELETE,
@@ -54,6 +55,8 @@ public class Request {
 			return MethodType.HEAD;
 		} else if (method.toString().equalsIgnoreCase(MethodType.OPTIONS.toString())) {
 			return MethodType.OPTIONS;
+		} else if (method.toString().equalsIgnoreCase(MethodType.PUT.toString())) {
+			return MethodType.PUT;
 		}
 		
 		return mtype;
