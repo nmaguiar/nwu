@@ -19,13 +19,8 @@
 package com.nwu.log;
 
 import java.io.IOException;
-
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.Priority;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * General logging using log4j
@@ -67,18 +62,12 @@ public class Log {
 	public Log(String loggerName, boolean useLog4J) {
 		logName = loggerName;
 		this.useLog4J = useLog4J;
-		if (useLog4J)
-			this.lOG4j = Logger.getLogger(loggerName);
-		else
-			this.lOG = java.util.logging.Logger.getLogger(loggerName);
+		this.lOG = java.util.logging.Logger.getLogger(loggerName);
 		
-		BasicConfigurator.configure(new ConsoleAppender(new PatternLayout(
-				LOG4J_DEFAULT_PATTERN)));
-		
-		if (useLog4J)
-			lOG4j.setLevel(getOutputType2Level(Type.INFO));
-		else 
-			lOG.setLevel(getOutputType2JavaLevel(Type.INFO));
+		/*BasicConfigurator.configure(new ConsoleAppender(new PatternLayout(
+				LOG4J_DEFAULT_PATTERN)));*/
+
+		lOG.setLevel(getOutputType2JavaLevel(Type.INFO));
 	}
 
 	/**
@@ -92,18 +81,12 @@ public class Log {
 	 */
 	public Log(String loggerName, Type type) {
 		logName = loggerName;
-		if (useLog4J)
-			lOG4j = Logger.getLogger(loggerName);
-		else
-			lOG = java.util.logging.Logger.getLogger(loggerName);
+		lOG = java.util.logging.Logger.getLogger(loggerName);
 		
-		BasicConfigurator.configure(new ConsoleAppender(new PatternLayout(
-				LOG4J_DEFAULT_PATTERN)));
+		/*BasicConfigurator.configure(new ConsoleAppender(new PatternLayout(
+				LOG4J_DEFAULT_PATTERN)));*/
 		
-		if (useLog4J)
-			lOG4j.setLevel(getOutputType2Level(type));
-		else
-			lOG.setLevel(getOutputType2JavaLevel(type));
+		lOG.setLevel(getOutputType2JavaLevel(type));
 	}
 
 	public Log() {
@@ -132,22 +115,13 @@ public class Log {
 	public void log(Type type, String message) {
 		switch (type) {
 		case DEBUG:
-			if (useLog4J)
-				lOG4j.debug(message);
-			else
-				lOG.log(java.util.logging.Level.WARNING, message);
+			lOG.log(java.util.logging.Level.WARNING, message);
 			break;
 		case ERROR:
-			if (useLog4J)
-				lOG4j.error(message);
-			else
-				lOG.severe(message);
+			lOG.severe(message);
 			break;
 		case INFO:
-			if (useLog4J)
-				lOG4j.info(message);
-			else
-				lOG.info(message);
+			lOG.info(message);
 			break;
 		}
 	}
@@ -182,46 +156,15 @@ public class Log {
 	public void log(Type type, long id, String message) {
 		switch (type) {
 		case DEBUG:
-			if (useLog4J)
-				lOG4j.debug(id + "|" + message);
-			else
-				lOG.log(java.util.logging.Level.WARNING, id + "|" + message);
+			lOG.log(java.util.logging.Level.WARNING, id + "|" + message);
 			break;
 		case ERROR:
-			if (useLog4J)
-				lOG4j.error(id + "|" + message);
-			else
-				lOG.severe(id + "|" + message);
+			lOG.severe(id + "|" + message);
 			break;
 		case INFO:
-			if (useLog4J)
-				lOG4j.info(id + "|" + message);
-			else
-				lOG.info(id + "|" + message);
+			lOG.info(id + "|" + message);
 			break;
 		}
-	}
-
-	/**
-	 * Convert Log type to log4j levels
-	 * 
-	 * @param type
-	 *            The Log type
-	 * @return The log4j Level correspondent.
-	 */
-	public static Level getOutputType2Level(Type type) {
-		switch (type) {
-		case DEBUG:
-			return Level.DEBUG;
-		case ERROR:
-			return Level.ERROR;
-		case INFO:
-			return Level.INFO;
-		case OFF:
-			return Level.OFF;
-		}
-
-		return null;
 	}
 	
 	public static java.util.logging.Level getOutputType2JavaLevel(Type type) {
