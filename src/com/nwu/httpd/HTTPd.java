@@ -48,20 +48,20 @@ public class HTTPd extends NanoHTTPD {
 	protected Thread myThread;
 	protected HTTPd httpd;
 	protected Log log;
-	protected static String defaultResponse = null;
+	protected String defaultResponse = null;
 
 	@SuppressWarnings("rawtypes")
-	protected static HashMap<String, Class> URIresponses = new HashMap<String, Class>();
-	protected static HashMap<String, Long> URIhits = new HashMap<String, Long>();
-	protected static HashMap<String, Map<String, String>> URIProps = new HashMap<String, Map<String, String>>();
-	protected static ArrayList<String> gzipaccept = new ArrayList<String>();
+	protected HashMap<String, Class> URIresponses = new HashMap<String, Class>();
+	protected HashMap<String, Long> URIhits = new HashMap<String, Long>();
+	protected HashMap<String, Map<String, String>> URIProps = new HashMap<String, Map<String, String>>();
+	protected ArrayList<String> gzipaccept = new ArrayList<String>();
 	
-	public static String getDefaultResponse() {
+	public String getDefaultResponse() {
 		return defaultResponse;
 	}
 
-	public static void setDefaultResponse(String defaultResponse) {
-		HTTPd.defaultResponse = defaultResponse;
+	public void setDefaultResponse(String defaultResponse) {
+		httpd.defaultResponse = defaultResponse;
 	}
 		
 	/**
@@ -139,7 +139,7 @@ public class HTTPd extends NanoHTTPD {
 	 *            The response class (com.nwu.httpd.responses.Response) to
 	 *            register.
 	 */
-	public static void registerURIResponse(String URI, Class<?> aClass, Map<String, String> props) {
+	public void registerURIResponse(String URI, Class<?> aClass, Map<String, String> props) {
 		if (aClass != null
 				&& aClass.asSubclass(com.nwu.httpd.responses.Response.class) != null) {
 			URIresponses.put(URI, aClass);
@@ -157,7 +157,7 @@ public class HTTPd extends NanoHTTPD {
 	 * @return A HashMap where the key is the URI and the value the 
 	 * com.nwu.httpd.responses.Response class.
 	 */
-	public static HashMap<String, Class> getURIresponses() {
+	public HashMap<String, Class> getURIresponses() {
 		return URIresponses;
 	}
 	
@@ -170,7 +170,7 @@ public class HTTPd extends NanoHTTPD {
 	 * 
 	 * @see java.util.Properties
 	 */
-	public static HashMap<String, Map<String, String>> getURIproperties() {
+	public HashMap<String, Map<String, String>> getURIproperties() {
 		return URIProps;
 	}
 	
@@ -180,7 +180,7 @@ public class HTTPd extends NanoHTTPD {
 	 * @param URI The URI to lookup the corresponding registered class
 	 * @return A sub-class of com.nwu.httpd.responses.Response
 	 */
-	public static Class<?> getURIresponse(String URI) {
+	public Class<?> getURIresponse(String URI) {
 		URI.replaceFirst("/+", "/");
 		
 		if (getURIresponses().containsKey(URI)) {
@@ -197,7 +197,7 @@ public class HTTPd extends NanoHTTPD {
 	 * @param URI The URI to lookup the corresponding properties
 	 * @return The properties or null if not found
 	 */
-	public static Map<String, String> getURIProps(String URI) {
+	public Map<String, String> getURIProps(String URI) {
 		if (URI.equals("")) URI = "/";
 		
 		if(getURIproperties().containsKey(URI)) {
@@ -212,7 +212,7 @@ public class HTTPd extends NanoHTTPD {
 	 * 
 	 * @return A HashMap where the key is the URI and the value the hit counter
 	 */
-	public static HashMap<String, Long> getURIhits() {
+	public HashMap<String, Long> getURIhits() {
 		return URIhits;
 	}
 

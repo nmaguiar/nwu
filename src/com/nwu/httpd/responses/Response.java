@@ -61,8 +61,8 @@ public abstract class Response {
 	 * 
 	 * @param uri The registered uri
 	 */
-	public static void register(String uri, Map<String, String> props) {
-		HTTPd.registerURIResponse(uri, Response.class, props);
+	public static void register(HTTPd httpd, String uri, Map<String, String> props) {
+		httpd.registerURIResponse(uri, Response.class, props);
 	}
 	
 	/**
