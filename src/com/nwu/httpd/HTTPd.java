@@ -75,7 +75,7 @@ public class HTTPd extends NanoHTTPD {
 	 */
 	public HTTPd(Log aLog, int port) throws IOException {
 		super(port);
-		super.LOG = aLog;
+		super.LOG = aLog.getLogLogger();
 		super.start();
 		this.log = aLog;
 		this.httpd = this;
@@ -92,7 +92,7 @@ public class HTTPd extends NanoHTTPD {
 	 */
 	public HTTPd(Log aLog, String hostname, int port) throws IOException {
 		super(hostname, port);
-		super.LOG = aLog;
+		super.LOG = aLog.getLogLogger();
 		super.start();
 		this.log = aLog;
 		this.httpd = this;

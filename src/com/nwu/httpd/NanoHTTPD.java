@@ -1,7 +1,5 @@
 package com.nwu.httpd;
-
 /*
- * 
  * #%L
  * NanoHttpd-Core
  * %%
@@ -97,7 +95,6 @@ import javax.net.ssl.TrustManagerFactory;
 
 import com.nwu.httpd.NanoHTTPD.Response.IStatus;
 import com.nwu.httpd.NanoHTTPD.Response.Status;
-import com.nwu.log.Log;
 
 /**
  * A simple, tiny, nicely embeddable HTTP server in Java
@@ -1856,9 +1853,8 @@ public abstract class NanoHTTPD {
     /**
      * logger to log to.
      */
-    //private static final Logger LOG = Logger.getLogger(NanoHTTPD.class.getName());
-    protected static Log LOG;
-    
+    protected static Logger LOG = Logger.getLogger(NanoHTTPD.class.getName());
+
     /**
      * Hashtable mapping (String)FILENAME_EXTENSION -> (String)MIME_TYPE
      */
