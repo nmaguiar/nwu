@@ -95,7 +95,7 @@ public class StatusResponse extends JsonResponse {
 	protected JSONObject respond2URIResponsesNumber(Map<String, String> p) {
 		JSONObject props1 = new JSONObject();
 		try {
-			props1.put("Size", HTTPd.getURIresponses().size());
+			props1.put("Size", this.httpd.getURIresponses().size());
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -106,8 +106,8 @@ public class StatusResponse extends JsonResponse {
 	protected JSONObject respond2ListOfResponses(Map<String, String> p) {
 		JSONObject props1 = new JSONObject();
 		try {
-			for (String response : HTTPd.getURIresponses().keySet()) {
-				props1.put(response, HTTPd.getURIresponses().get(response).getName());
+			for (String response : this.httpd.getURIresponses().keySet()) {
+				props1.put(response, this.httpd.getURIresponses().get(response).getName());
 			}
 			
 		} catch (JSONException e) {
@@ -120,8 +120,8 @@ public class StatusResponse extends JsonResponse {
 	protected JSONObject respond2ListOfResponsesHits(Map<String, String> p) {		
 		JSONObject props1 = new JSONObject();
 		try {
-			for (String response : HTTPd.getURIhits().keySet()) {
-				props1.put(response, HTTPd.getURIhits().get(response));
+			for (String response : this.httpd.getURIhits().keySet()) {
+				props1.put(response, this.httpd.getURIhits().get(response));
 			}
 			
 		} catch (JSONException e) {
@@ -173,7 +173,7 @@ public class StatusResponse extends JsonResponse {
 	protected String listOfResponses() {
 		String list = "";
 		
-		for (String response : HTTPd.getURIresponses().keySet()) {
+		for (String response : this.httpd.getURIresponses().keySet()) {
 			list += response + "<br>";
 		}
 		
@@ -183,8 +183,8 @@ public class StatusResponse extends JsonResponse {
 	protected String listOfResponsesHits() {
 		String list = "";
 		
-		for (String response : HTTPd.getURIhits().keySet()) {
-			list += response + " - " + HTTPd.getURIhits().get(response) + "<br>";
+		for (String response : this.httpd.getURIhits().keySet()) {
+			list += response + " - " + this.httpd.getURIhits().get(response) + "<br>";
 		}
 		
 		return list;

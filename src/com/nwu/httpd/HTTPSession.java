@@ -50,18 +50,18 @@ public class HTTPSession {
 			registeredUri = registeredUri.substring(0, uri.indexOf('/', 1));
 		}
 		
-		if (!HTTPd.getURIresponses().containsKey(registeredUri)) {
-			registeredUri = HTTPd.getDefaultResponse();
+		if (!httpd.getURIresponses().containsKey(registeredUri)) {
+			registeredUri = httpd.getDefaultResponse();
 		}
 
-		if (HTTPd.getURIresponses().containsKey(registeredUri)) {
+		if (httpd.getURIresponses().containsKey(registeredUri)) {
 			com.nwu.httpd.responses.Response response = null;
 			
-			log.log(Type.DEBUG, 0, "Using response class '" + HTTPd.getURIresponses().get(registeredUri).getName() + "' for URI = '" + registeredUri + "'"); 
+			log.log(Type.DEBUG, 0, "Using response class '" + httpd.getURIresponses().get(registeredUri).getName() + "' for URI = '" + registeredUri + "'"); 
 
 			try {
-				Constructor c = HTTPd.getURIresponse(registeredUri).getDeclaredConstructor(HTTPd.class, String.class, Map.class);
-				response = (com.nwu.httpd.responses.Response) c.newInstance(httpd, registeredUri, HTTPd.getURIProps(registeredUri));
+				Constructor c = httpd.getURIresponse(registeredUri).getDeclaredConstructor(HTTPd.class, String.class, Map.class);
+				response = (com.nwu.httpd.responses.Response) c.newInstance(httpd, registeredUri, httpd.getURIProps(registeredUri));
 				response.execute(new Request(uri, method, headers, parms, files));
 			} catch (InstantiationException | IllegalAccessException | SecurityException | NoSuchMethodException | IllegalArgumentException | InvocationTargetException e) {
 				e.printStackTrace();
