@@ -77,7 +77,7 @@ public class HTTPd extends NanoHTTPD {
 		super(port);
 		super.LOG = aLog.getLogLogger();
 		super.start();
-		this.log = aLog;
+		if (aLog != null) this.log = aLog;
 		this.httpd = this;
 		myTcpPort = port;
 		log.log(Type.DEBUG, "ServerSocket created for TCP port: " + myTcpPort);
@@ -94,7 +94,7 @@ public class HTTPd extends NanoHTTPD {
 		super(hostname, port);
 		super.LOG = aLog.getLogLogger();
 		super.start();
-		this.log = aLog;
+		if (aLog != null) this.log = aLog;
 		this.httpd = this;
 		myTcpPort = port;
 		log.log(Type.DEBUG, "ServerSocket created for TCP hostname: " + hostname + "; port: " + myTcpPort);

@@ -737,7 +737,7 @@ public abstract class NanoWSD extends NanoHTTPD {
     /**
      * logger to log to.
      */
-    private static final Logger LOG = Logger.getLogger(NanoWSD.class.getName());
+    protected static Logger LOG = Logger.getLogger(NanoWSD.class.getName());
 
     public static final String HEADER_UPGRADE = "upgrade";
 

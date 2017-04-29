@@ -18,7 +18,7 @@
  */
 package com.nwu.log;
 
-import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * General logging using log4j
@@ -33,16 +33,16 @@ public class Log {
 	 * @author Nuno Aguiar <nuno@aguiar.name>
 	 */
 	public enum Type {
-		INFO, ERROR, DEBUG, OFF
+		FINE, INFO, ERROR, DEBUG, OFF
 	};
 
 	/**
 	 * Log4J default message pattern
 	 */
-	protected static String LOG4J_DEFAULT_PATTERN = "%d{dd MMM yyyy HH:mm:ss,SSS};[%p]; %m%n";
+	protected static String LOG_DEFAULT_PATTERN = "%d{dd MMM yyyy HH:mm:ss,SSS};[%p]; %m%n";
 
 	protected String logName;
-	protected Logger lOG4j;
+	//protected Logger lOG4j;
 	protected java.util.logging.Logger lOG;
 	protected boolean useLog4J;
 
@@ -121,23 +121,29 @@ public class Log {
 		case INFO:
 			lOG.info(message);
 			break;
+		case FINE:
+			lOG.fine(message);
+			break;
+		default:
+			break;
 		}
 	}
 	
 	public void log(Type level, String message, Exception e) {
 		log(level, message + " | " + e.getMessage());
-		if (level == level.DEBUG) e.printStackTrace();		
+		if (level == Type.DEBUG) e.printStackTrace();		
 	}
 	
 	public void log(java.util.logging.Level level, String message) {
-		if (level == level.WARNING) log(com.nwu.log.Log.Type.DEBUG, message);
-		if (level == level.SEVERE) log(com.nwu.log.Log.Type.ERROR, message);
-		if (level == level.INFO) log(com.nwu.log.Log.Type.INFO, message);
+		if (level == Level.WARNING) log(com.nwu.log.Log.Type.DEBUG, message);
+		if (level == Level.SEVERE) log(com.nwu.log.Log.Type.ERROR, message);
+		if (level == Level.INFO) log(com.nwu.log.Log.Type.INFO, message);
+		if (level == Level.FINE) log(com.nwu.log.Log.Type.FINE, message);
 	}
 	
 	public void log(java.util.logging.Level level, String message, Exception e) {
 		log(level, message + " | " + e.getMessage());
-		if (level == level.WARNING) e.printStackTrace();
+		if (level == Level.WARNING) e.printStackTrace();
 	}
 	
 	public void severe(String message) {
@@ -162,6 +168,11 @@ public class Log {
 		case INFO:
 			lOG.info(id + "|" + message);
 			break;
+		case FINE:
+			lOG.fine(id + "|" + message);
+			break;
+		default:
+			break;
 		}
 	}
 	
@@ -173,15 +184,13 @@ public class Log {
 			return java.util.logging.Level.SEVERE;
 		case INFO:
 			return java.util.logging.Level.INFO;
+		case FINE:
+			return java.util.logging.Level.FINE;
 		case OFF:
 			return java.util.logging.Level.OFF;
 		}
 		
-		return null;
-	}
-	
-	public Logger getLog4JLogger() {
-		return this.lOG4j;
+		return java.util.logging.Level.OFF;
 	}
 	
 	public java.util.logging.Logger getLogLogger() {
