@@ -21,15 +21,11 @@ package com.nwu.httpd.responses;
 import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
-
 import org.json.JSONObject;
 
 import com.nwu.httpd.Codes;
-import com.nwu.httpd.HTTPd;
+import com.nwu.httpd.IHTTPd;
 import com.nwu.httpd.Request;
-import com.nwu.httpd.responses.JsonResponse.JsonAnswer;
-import com.nwu.httpd.responses.JsonResponse.OperationKey;
 
 public class JsonResponse extends Response {
 	protected HashMap<OperationKey, JsonAnswer> answers4Key = new HashMap<OperationKey, JsonAnswer>();
@@ -48,7 +44,7 @@ public class JsonResponse extends Response {
 		public abstract JSONObject answer(Map<String, String> params);
 	}
 	
-	public JsonResponse(HTTPd httpd, String rUri, Map<String, String> props) {
+	public JsonResponse(IHTTPd httpd, String rUri, Map<String, String> props) {
 		super(httpd, rUri, props);
 	}
 

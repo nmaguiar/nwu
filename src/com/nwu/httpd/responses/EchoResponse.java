@@ -20,10 +20,8 @@ package com.nwu.httpd.responses;
 
 import java.io.ByteArrayInputStream;
 import java.util.Map;
-import java.util.Properties;
-
 import com.nwu.httpd.Codes;
-import com.nwu.httpd.HTTPd;
+import com.nwu.httpd.IHTTPd;
 import com.nwu.httpd.Request;
 
 /**
@@ -46,7 +44,7 @@ public class EchoResponse extends Response {
 	 * @param httpd The httpd server context.
 	 * @param request The request.
 	 */
-	public EchoResponse(HTTPd httpd, String rUri, Map<String, String> props) {
+	public EchoResponse(IHTTPd httpd, String rUri, Map<String, String> props) {
 		super(httpd, rUri);
 	}
 

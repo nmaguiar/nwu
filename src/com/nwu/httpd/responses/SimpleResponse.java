@@ -21,18 +21,18 @@ package com.nwu.httpd.responses;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 
-import com.nwu.httpd.HTTPd;
+import com.nwu.httpd.IHTTPd;
 import com.nwu.httpd.NanoHTTPD.Response.IStatus;
 import com.nwu.httpd.Request;
 
 public class SimpleResponse extends Response {
 
-	public SimpleResponse(HTTPd httpd, IStatus status, String mimeType,
+	public SimpleResponse(IHTTPd httpd, IStatus status, String mimeType,
 			String txt) {
 		super(httpd, status, mimeType, new ByteArrayInputStream( txt.getBytes()));
 	}
 
-	public SimpleResponse(HTTPd httpd, IStatus httpOk, String mime,
+	public SimpleResponse(IHTTPd httpd, IStatus httpOk, String mime,
 			FileInputStream fis) {
 		super(httpd, httpOk, mime, fis);
 	}

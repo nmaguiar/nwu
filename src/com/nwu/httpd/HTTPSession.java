@@ -21,10 +21,7 @@ package com.nwu.httpd;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
-import java.util.Properties;
-
 import com.nwu.httpd.NanoHTTPD.Method;
-import com.nwu.httpd.NanoHTTPD.Response;
 import com.nwu.log.Log;
 import com.nwu.log.Log.Type;
 
@@ -42,7 +39,7 @@ public class HTTPSession {
 	 * 
 	 */
 
-	public static com.nwu.httpd.NanoHTTPD.Response serve(HTTPd httpd, Log log, String uri, Method method, Map<String, String> headers, Map<String, String> parms,
+	public static com.nwu.httpd.NanoHTTPD.Response serve(IHTTPd httpd, Log log, String uri, Method method, Map<String, String> headers, Map<String, String> parms,
             Map<String, String> files) {
 		String registeredUri = uri;
 		
@@ -60,11 +57,12 @@ public class HTTPSession {
 			log.log(Type.DEBUG, 0, "Using response class '" + httpd.getURIresponses().get(registeredUri).getName() + "' for URI = '" + registeredUri + "'"); 
 
 			try {
-				Constructor c = httpd.getURIresponse(registeredUri).getDeclaredConstructor(HTTPd.class, String.class, Map.class);
+				Constructor<?> c = httpd.getURIresponse(registeredUri).getDeclaredConstructor(IHTTPd.class, String.class, Map.class);
 				response = (com.nwu.httpd.responses.Response) c.newInstance(httpd, registeredUri, httpd.getURIProps(registeredUri));
 				response.execute(new Request(uri, method, headers, parms, files));
 			} catch (InstantiationException | IllegalAccessException | SecurityException | NoSuchMethodException | IllegalArgumentException | InvocationTargetException e) {
 				e.printStackTrace();
+				return null;
 			}
 			
 			return response.getResponse();

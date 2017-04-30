@@ -18,17 +18,12 @@
  */
 package com.nwu.httpd.responses;
 
-import java.io.ByteArrayInputStream;
 import java.lang.management.ManagementFactory;
 import java.util.Map;
-import java.util.Properties;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.nwu.httpd.Codes;
-import com.nwu.httpd.HTTPd;
-import com.nwu.httpd.Request;
+import com.nwu.httpd.IHTTPd;
 
 /**
  * Status response.
@@ -152,7 +147,7 @@ public class StatusResponse extends JsonResponse {
 	 * @param httpd The httpd server context.
 	 * @param request The request.
 	 */
-	public StatusResponse(HTTPd httpd, String rUri, Map<String, String> props) {
+	public StatusResponse(IHTTPd httpd, String rUri, Map<String, String> props) {
 		super(httpd, rUri, props);
 		
 		add("q", "properties", new JsonAnswer() { @Override public JSONObject answer(Map<String, String> p) { return respond2Properties(p); } });	

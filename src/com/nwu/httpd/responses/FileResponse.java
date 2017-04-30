@@ -28,6 +28,7 @@ import java.util.StringTokenizer;
 
 import com.nwu.httpd.Codes;
 import com.nwu.httpd.HTTPd;
+import com.nwu.httpd.IHTTPd;
 import com.nwu.httpd.Request;
 import com.nwu.log.Log.Type;
 
@@ -42,7 +43,7 @@ public class FileResponse extends Response {
 		this.fileLocation = fileLocation;
 	}
 
-	public FileResponse(HTTPd httpd, String rUri, Map<String, String> props) {
+	public FileResponse(IHTTPd httpd, String rUri, Map<String, String> props) {
 		super(httpd, rUri, props);
 	}
 	

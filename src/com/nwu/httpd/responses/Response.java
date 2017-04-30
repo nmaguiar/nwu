@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import com.nwu.httpd.Codes;
 import com.nwu.httpd.HTTPd;
+import com.nwu.httpd.IHTTPd;
 import com.nwu.httpd.NanoHTTPD.Response.IStatus;
 import com.nwu.httpd.Request;
 import com.nwu.log.Log;
@@ -35,7 +36,7 @@ import com.nwu.log.Log;
  * Return one of these from serve().
  */
 public abstract class Response {
-	protected HTTPd httpd;
+	protected IHTTPd httpd;
 	protected Log log;
 	protected String rURI;
 	protected Map<String, String> props;
@@ -47,7 +48,7 @@ public abstract class Response {
 	 * @param httpd The httpd server context
 	 * @param request The request
 	 */
-	public Response(HTTPd httpd, String rURI) {
+	public Response(IHTTPd httpd, String rURI) {
 		this.httpd = httpd;
 		this.log = httpd.getLog();
 		this.rURI = rURI;
@@ -61,14 +62,14 @@ public abstract class Response {
 	 * 
 	 * @param uri The registered uri
 	 */
-	public static void register(HTTPd httpd, String uri, Map<String, String> props) {
+	public static void register(IHTTPd httpd, String uri, Map<String, String> props) {
 		httpd.registerURIResponse(uri, Response.class, props);
 	}
 	
 	/**
 	 * Default constructor: response = HTTP_OK, data = mime = 'null'
 	 */
-	public Response(HTTPd httpd) {
+	public Response(IHTTPd httpd) {
 		this.httpd = httpd;
 		this.status = Codes.HTTP_OK;
 		this.log = httpd.getLog();
@@ -77,7 +78,7 @@ public abstract class Response {
 	/**
 	 * Basic constructor.
 	 */
-	public Response(HTTPd httpd, IStatus status, String mimeType, InputStream data) {
+	public Response(IHTTPd httpd, IStatus status, String mimeType, InputStream data) {
 		this.httpd = httpd;
 		this.status = status;
 		this.mimeType = mimeType;
@@ -89,7 +90,7 @@ public abstract class Response {
 	 * Convenience method that makes an InputStream out of
 	 * given text.
 	 */
-	public Response(HTTPd httpd, IStatus status, String mimeType, String txt) {
+	public Response(IHTTPd httpd, IStatus status, String mimeType, String txt) {
 		this.httpd = httpd;
 		this.status = status;
 		this.mimeType = mimeType;
@@ -98,7 +99,7 @@ public abstract class Response {
 		this.size = txt.length();
 	}
 
-	public Response(HTTPd httpd, String rUri, Map<String, String> props) {
+	public Response(IHTTPd httpd, String rUri, Map<String, String> props) {
 		this.httpd = httpd;
 		this.props = props;
 		this.rURI = rUri;
@@ -121,7 +122,7 @@ public abstract class Response {
 	/**
 	 * Adds given line to the header.
 	 */
-	public void addHeader( String name, String value ) {
+	public void addHeader(String name, String value ) {
 		header.put( name, value );
 	}
 

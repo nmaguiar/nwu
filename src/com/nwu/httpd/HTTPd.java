@@ -42,7 +42,7 @@ import com.nwu.log.Log.Type;
  * @author Nuno Aguiar <nuno@aguiar.name>
  * 
  */
-public class HTTPd extends NanoHTTPD {
+public class HTTPd extends NanoHTTPD implements IHTTPd {
 	protected int myTcpPort;
 	//protected final ServerSocket myServerSocket;
 	protected Thread myThread;
@@ -239,7 +239,7 @@ public class HTTPd extends NanoHTTPD {
 	}
 	
 	@Override
-    protected boolean useGzipWhenAccepted(Response r) {
+	public boolean useGzipWhenAccepted(Response r) {
         return r.getMimeType() != null && (r.getMimeType().toLowerCase().contains("text/") ||
         		 (gzipaccept.contains(r.getMimeType().toLowerCase())));
     }
