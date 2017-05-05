@@ -7,7 +7,7 @@ import com.nwu.httpd.NanoHTTPD.Response;
 import com.nwu.log.Log;
 
 public interface IHTTPd {
-
+	
 	public void registerURIResponse(String URI, Class<?> aClass, Map<String, String> props);
 	public HashMap<String, Class> getURIresponses();
 	
