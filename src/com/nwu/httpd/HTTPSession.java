@@ -40,7 +40,7 @@ public class HTTPSession {
 	 */
 
 	public static com.nwu.httpd.NanoHTTPD.Response serve(IHTTPd httpd, Log log, String uri, Method method, Map<String, String> headers, Map<String, String> parms,
-            Map<String, String> files) {
+            Map<String, String> files, String oURI) {
 		String registeredUri = uri;
 		
 		if (uri.indexOf('/', 1) > -1) {
@@ -59,7 +59,7 @@ public class HTTPSession {
 			try {
 				Constructor<?> c = httpd.getURIresponse(registeredUri).getDeclaredConstructor(IHTTPd.class, String.class, Map.class);
 				response = (com.nwu.httpd.responses.Response) c.newInstance(httpd, registeredUri, httpd.getURIProps(registeredUri));
-				response.execute(new Request(uri, method, headers, parms, files));
+				response.execute(new Request(uri, method, headers, parms, files, oURI));
 			} catch (InstantiationException | IllegalAccessException | SecurityException | NoSuchMethodException | IllegalArgumentException | InvocationTargetException e) {
 				e.printStackTrace();
 				return null;

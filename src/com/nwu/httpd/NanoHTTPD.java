@@ -620,6 +620,8 @@ public abstract class NanoHTTPD {
         private int rlen;
 
         private String uri;
+        
+        private String originalURI;
 
         private Method method;
 
@@ -675,6 +677,7 @@ public abstract class NanoHTTPD {
                 }
 
                 String uri = st.nextToken();
+                pre.put("originalURI", uri);
 
                 // Decode parameters from the URI
                 int qmi = uri.indexOf('?');
@@ -930,6 +933,7 @@ public abstract class NanoHTTPD {
                 }
 
                 this.uri = pre.get("uri");
+                this.originalURI = pre.get("originalURI");
 
                 this.cookies = new CookieHandler(this.headers);
 
@@ -1110,6 +1114,11 @@ public abstract class NanoHTTPD {
             return this.uri;
         }
 
+        @Override
+        public final String getOriginalURI() {
+            return this.originalURI;
+        }
+        
         /**
          * Deduce body length in bytes. Either from "content-length" header or
          * read bytes.
@@ -1283,6 +1292,8 @@ public abstract class NanoHTTPD {
          * @return the hostname.
          */
         String getRemoteHostName();
+
+		String getOriginalURI();
     }
 
     /**
@@ -2241,7 +2252,7 @@ public abstract class NanoHTTPD {
 
         Map<String, String> parms = session.getParms();
         parms.put(NanoHTTPD.QUERY_STRING_PARAMETER, session.getQueryParameterString());
-        return serve(session.getUri(), method, session.getHeaders(), parms, files);
+        return serve(session.getUri(), method, session.getHeaders(), parms, files, session.getOriginalURI());
     }
 
     /**
@@ -2263,7 +2274,7 @@ public abstract class NanoHTTPD {
      * @return HTTP response, see class Response for details
      */
     @Deprecated
-    public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms, Map<String, String> files) {
+    public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms, Map<String, String> files, String oURI) {
         return newFixedLengthResponse(Response.Status.NOT_FOUND, NanoHTTPD.MIME_PLAINTEXT, "Not Found");
     }
 

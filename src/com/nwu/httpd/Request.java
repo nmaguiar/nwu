@@ -25,6 +25,7 @@ import com.nwu.httpd.NanoHTTPD.Method;
 
 public class Request {
 	String uri;
+	String originalURI;
 	MethodType method;
 	Map<String, String> header;
 	Map<String, String> params;
@@ -62,12 +63,13 @@ public class Request {
 		return mtype;
 	}
 	
-	public Request(String uri, Method method, Map<String, String> headers, Map<String, String> parms, Map<String, String> files) {
+	public Request(String uri, Method method, Map<String, String> headers, Map<String, String> parms, Map<String, String> files, String originalURI) {
 		this.uri = uri;
 		this.method = strMethod2Type(method);
 		this.header = headers;
 		this.params = parms;
 		this.files = files;
+		this.originalURI = originalURI;
 	}
 	
 	public String getUri() {
@@ -78,6 +80,14 @@ public class Request {
 		this.uri = uri;
 	}
 
+	public String getOriginalURI() {
+		return originalURI;
+	}
+
+	public void setOriginalURI(String ouri) {
+		this.originalURI = ouri;
+	}
+	
 	public MethodType getMethod() {
 		return method;
 	}

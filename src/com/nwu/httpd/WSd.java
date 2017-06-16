@@ -108,7 +108,7 @@ public class WSd extends NanoWSD implements IHTTPd {
         
         Map<String, String> parms = session.getParms();
         parms.put(super.QUERY_STRING_PARAMETER, session.getQueryParameterString());
-        Response res = com.nwu.httpd.HTTPSession.serve(this, log, session.getUri(), method, session.getHeaders(), parms, files);
+        Response res = com.nwu.httpd.HTTPSession.serve(this, log, session.getUri(), method, session.getHeaders(), parms, files, session.getOriginalURI());
         try {
         	session.getInputStream().skip(session.getInputStream().available());
 		} catch (IOException e) {
